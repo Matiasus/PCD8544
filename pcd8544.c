@@ -135,12 +135,8 @@ int cacheMemIndex = 0;
  */
 void Pcd8544Init(void)
 {
-  // Actiavte pull-up register
-  // logical high on pin RST
-  PORT |= (1 << RST);
-  // Output: RST, SCK, DIN, CE, DC 
-  DDR  |= (1 << RST) | 
-          (1 << SCK) | 
+  // Output: SCK, DIN, CE, DC 
+  DDR  |= (1 << SCK) | 
           (1 << DIN) | 
           (1 << CE)  | 
           (1 << DC);
@@ -205,6 +201,10 @@ void CmdOrDataSend(enumCmdOrData cmdOrData, uint8_t data)
  */
 void ResetImpulse(void)
 {
+  // Actiavte pull-up register logical high on pin RST
+  PORT |= (1 << RST);
+  // Set as Output
+  DDR  |= (1 << RST);
   // delay 1ms
   _delay_ms(1);
   // Reset Low 
