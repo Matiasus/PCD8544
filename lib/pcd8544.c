@@ -373,11 +373,11 @@ char DrawPixel(uint8_t x, uint8_t y)
 char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
 {
   // determinant
-  int D;
+  int16_t D;
   // deltas
-  int8_t delta_x, delta_y;
+  int16_t delta_x, delta_y;
   // steps
-  int8_t trace_x = 1, trace_y = 1;
+  int16_t trace_x = 1, trace_y = 1;
 
   // delta x
   delta_x = x2 - x1;
@@ -394,14 +394,13 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
 
   // check if y2 > y1
   if (delta_y < 0) {
-    // negate delta y
+    // negate detla y
     delta_y = -delta_y;
     // negate step y
     trace_y = -trace_y;
   }
 
-  // Bresenham condition
-  // for m < 1 (dy < dx)
+  // Bresenham condition for m < 1 (dy < dx)
   if (delta_y < delta_x) {
     // calculate determinant
     D = 2*delta_y - delta_x;
@@ -420,15 +419,15 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
       }
       // update deteminant
       D += 2*delta_y;
-      // draw first pixel
+      // draw next pixel
       DrawPixel(y1, x1);
     }
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
-    D = delta_y - delta_x - delta_x;
+    D = delta_y - 2*delta_x;
     // draw first pixel
-    DrawPixel(x1, y1, color);
+    DrawPixel(y1, x1);
     // check if y2 equal y1
     while (y1 != y2) {
       // update y1
@@ -443,7 +442,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
       // update deteminant
       D -= 2*delta_x;
       // draw next pixel
-      DrawPixel(x1, y1, color);
+      DrawPixel(y1, x1);
     }
   }
   // success return

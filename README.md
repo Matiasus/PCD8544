@@ -1,4 +1,4 @@
-# LCD 64x48
+# LCD 84x48
 <h2>PCD8544 Driver</h2>
 
 <p>LCD Driver pcd8544 for AVR Atmega16</p>
