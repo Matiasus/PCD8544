@@ -1,5 +1,3 @@
-#define F_CPU 16000000
-
 #include <stdlib.h>
 #include <avr/io.h>
 #include <util/delay.h>
@@ -54,10 +52,6 @@
 
 // pocitadlo
 volatile uint8_t _index = 0;
-// prerusenie INT0
-volatile uint8_t _freq = 0;
-// prerusenie INT0
-volatile uint8_t _volt = 0;
 // pole hodnot buffra
 volatile uint8_t _buffer[WIDTH];
 
