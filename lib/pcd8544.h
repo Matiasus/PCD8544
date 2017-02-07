@@ -37,12 +37,6 @@
   /** @const Characters */
   extern const uint8_t CHARACTERS[][5];
 
-  /** @enum Command or data */
-  typedef enum {
-    DATA = 1,     // active high
-    COMMAND = 0,  // active low
-  } enumCmdOrData;
-
   /***
    * Initialise pcd8544 controller
    *
@@ -52,13 +46,20 @@
   void Pcd8544Init(void);
 
   /***
-   * Command/data send
+   * Command send
    *
-   * @param EnumCmdOrData /see pcd8544.h/
    * @param uint8_t
    * @return void
    */
-  void CmdOrDataSend(enumCmdOrData, uint8_t);
+  void CommandSend(uint8_t);
+
+  /***
+   * Data send
+   *
+   * @param uint8_t
+   * @return void
+   */
+  void DataSend(uint8_t);
 
   /***
    * Reset Impulse
