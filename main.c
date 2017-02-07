@@ -1,3 +1,5 @@
+#define F_CPU 16000000
+
 #include <stdlib.h>
 #include <avr/io.h>
 #include <util/delay.h>
@@ -52,6 +54,10 @@
 
 // pocitadlo
 volatile uint8_t _index = 0;
+// prerusenie INT0
+volatile uint8_t _freq = 0;
+// prerusenie INT0
+volatile uint8_t _volt = 0;
 // pole hodnot buffra
 volatile uint8_t _buffer[WIDTH];
 
@@ -103,10 +109,16 @@ int main(void)
   AdcInit();
   // vyber kanala ADC
   ADC_CHANNEL(1);
-  // Spustenie casovaca 0
-  TIMER0_START(PRESCALER_8);
-  // Spustenie casovac 1A
-  TIMER1A_START(PRESCALER_1);
+  // vymazenie obrazovky
+  ClearScreen();
+  // pozicia textu riadok, stlpec
+  SetTextPosition(0, 3);
+  // vypis retazca
+  DrawString("Init LCD");
+  // vypis - update pamate
+  UpdateScreen();
+  // podleva casova
+  _delay_ms(2000);
   // povolenie globalneho prerusenia
   sei();
   // nekonecna slucka
@@ -157,6 +169,8 @@ void Timer0Init(void)
   // priznak sa nastavuje aj bez povolenia globalnych preruseni
   // a povoleni preruseni od zhody TCNT0 a OCR0
   TIFR  |= (1 << OCF0);
+  // Spustenie casovaca 0
+  TIMER0_START(PRESCALER_8);
 }
 
 /***
@@ -176,13 +190,15 @@ void Timer1AInit(void)
   //    fclk = 16 Mhz
   //       N = 1
   //   foc1A = 1/Toc1A
-  OCR1A = 15999;
+  OCR1A = 7999;
   // PIN PD5 - OC1A ako vystupny 
   DDRD  |= (1 << PD5);
   // Waveform generation - toggle
   TCCR1A |= (1 << COM1A0);
   // Mod CTC -> TOP = OCR1A
   TCCR1B |= (1 << WGM12);
+  // Spustenie casovac 1A
+  TIMER1A_START(PRESCALER_1);
 }
 
 /***

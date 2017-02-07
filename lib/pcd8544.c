@@ -148,43 +148,36 @@ void Pcd8544Init(void)
           (1 << MSTR) |
           (1 << SPR0);
   // extended instruction set
-  CmdOrDataSend(COMMAND, 0x21);
+  CommandSend(0x21);
   // temperature set - temperature coefficient of IC
-  CmdOrDataSend(COMMAND, 0x06);
+  CommandSend(0x06);
   // bias 1:48 - optimum bias value
-  CmdOrDataSend(COMMAND, 0x13);
+  CommandSend(0x13);
   // for mux 1:48 optimum operation voltage is Ulcd = 6,06.Uth
   // Ulcd = 3,06 + (Ucp6 to Ucp0).0,06
   // 6 < Ulcd < 8,05
   // command for operation voltage = 0x1 Ucp6 Ucp5 Ucp4 Ucp3 Ucp2 Ucp1 Ucp0
   // Ulcd = 0x11000010 = 7,02 V
-  CmdOrDataSend(COMMAND, 0xC2);
+  CommandSend(0xC2);
   // normal instruction set
   // horizontal adressing mode
-  CmdOrDataSend(COMMAND, 0x20);
+  CommandSend(0x20);
   // normal mode
-  CmdOrDataSend(COMMAND, 0x0C);
+  CommandSend(0x0C);
 }
+
 /**
- * @description Comand/data send
+ * @description Command send
  *
- * @param enumCmdOrData (see enum in pcd8544.h)
  * @param uint8_t 
  * @return void
  */
-void CmdOrDataSend(enumCmdOrData cmdOrData, uint8_t data)
+void CommandSend(uint8_t data)
 {
   // chip enable - active low
   PORT &= ~(1 << CE);
-  // check if data
-  if (cmdOrData == DATA) {
-    // data (active high)
-    PORT |= (1 << DC);
-  // command
-  } else {
-    // command (active low)
-    PORT &= ~(1 << DC);
-  }
+  // command (active low)
+  PORT &= ~(1 << DC);
   // transmitting data
   SPDR = data;
   // wait till data transmit
@@ -192,6 +185,27 @@ void CmdOrDataSend(enumCmdOrData cmdOrData, uint8_t data)
   // chip disable - idle high
   PORT |= (1 << CE);
 }
+
+/**
+ * @description Command send
+ *
+ * @param uint8_t 
+ * @return void
+ */
+void DataSend(uint8_t data)
+{
+  // chip enable - active low
+  PORT &= ~(1 << CE);
+  // data (active high)
+  PORT |= 1 << DC;
+  // transmitting data
+  SPDR = data;
+  // wait till data transmit
+  while (!(SPSR & (1 << SPIF)));
+  // chip disable - idle high
+  PORT |= (1 << CE);
+}
+
 /***
  * @description Reset impulse
  *
@@ -234,7 +248,7 @@ void UpdateScreen(void)
   // loop through cache memory lcd
   for (i=0; i<CACHE_SIZE_MEM; i++) {
     // write data to lcd memory
-    CmdOrDataSend(DATA, cacheMemLcd[i]);
+    DataSend(cacheMemLcd[i]);
   }  
 }
 /**
@@ -304,11 +318,11 @@ char SetTextPosition(uint8_t x, uint8_t y)
   }
   // normal instruction set
   // horizontal adressing mode
-  CmdOrDataSend(COMMAND, 0x20);
+  CommandSend(0x20);
   // set x-position
-  CmdOrDataSend(COMMAND, (0x40 | x));
+  CommandSend((0x40 | x));
   // set y-position
-  CmdOrDataSend(COMMAND, (0x80 | (y * 6)));
+  CommandSend((0x80 | (y * 6)));
   // calculate index memory
   cacheMemIndex = (y * 6) + (x * MAX_NUM_COLS);
   // success return
@@ -331,11 +345,11 @@ char SetPixelPosition(uint8_t x, uint8_t y)
   }
   // normal instruction set
   // horizontal adressing mode
-  CmdOrDataSend(COMMAND, 0x20);
+  CommandSend(0x20);
   // set x-position
-  CmdOrDataSend(COMMAND, (0x40 | (x / 8)));
+  CommandSend((0x40 | (x / 8)));
   // set y-position
-  CmdOrDataSend(COMMAND, (0x80 | y));
+  CommandSend((0x80 | y));
   // calculate index memory
   cacheMemIndex = y + ((x / 8) * MAX_NUM_COLS);
   // success return
