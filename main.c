@@ -1,4 +1,6 @@
-#define F_CPU 16000000
+#ifndef F_CPU
+  #define F_CPU 16000000
+#endif
 
 #include <stdlib.h>
 #include <avr/io.h>
@@ -52,12 +54,8 @@
 // - nastavenie
 #define ADC_PRESCALER(PRESCALER) { ADCSRA &= ~((1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0)); ADCSRA |= PRESCALER & 0x07; }
 
-// pocitadlo
+// prerusenie INT0
 volatile uint8_t _index = 0;
-// prerusenie INT0
-volatile uint8_t _freq = 0;
-// prerusenie INT0
-volatile uint8_t _volt = 0;
 // pole hodnot buffra
 volatile uint8_t _buffer[WIDTH];
 
