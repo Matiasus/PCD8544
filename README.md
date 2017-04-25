@@ -5,7 +5,7 @@
 <p>C library for driving LCD display Nokia 5110 with driver pcd8544 through SPI's Atmega16</p>
 
 <h2>Demonstration</h2>
-<img src="pcd8544.jpg" />
+<img src="img/pcd8544.jpg" />
 
 <h2>Inspiration & Acknowledgement</h2>
 https://github.com/mvadai/muonhunter/blob/master/avr/
