@@ -1,14 +1,18 @@
 /*** 
- * LCD driver for controller pcd8544 / Nokia 5110, 3110 /
- *
- * Copyright (C) 2016 Marian Hrinko.
+ * LCD driver PCD8544 / Nokia 5110, 3110 /
+ * 
+ * Copyright (C) 2019 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
+ * @author      Marian Hrinko
+ * @update      25.11.2019
+ * @file        pcd8544.c
+ * @tested      AVR Atmega16 / AVR Atmega8
+ * @descript    Library designed for LCD with PCD8544 driver
+ * @usage       LCD Resolution 48x84
+ *              Ccommunication thorught 5 control wires (SCK, RST, DIN, CE, CS)
+ * 
  */
-#ifndef F_CPU
-  #define F_CPU 16000000UL
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <avr/io.h>
@@ -17,7 +21,7 @@
 #include "pcd8544.h"
 
 /** @darray Charset */
-const uint8_t CHARACTERS[][5] PROGMEM = {
+const char CHARACTERS[][5] PROGMEM = {
   { 0x00, 0x00, 0x00, 0x00, 0x00 }, // 20 space
   { 0x00, 0x00, 0x5f, 0x00, 0x00 }, // 21 !
   { 0x00, 0x07, 0x00, 0x07, 0x00 }, // 22 "
@@ -116,22 +120,21 @@ const uint8_t CHARACTERS[][5] PROGMEM = {
   { 0x00, 0x00, 0x00, 0x00, 0x00 }  // 7f
 };
 
-/** @var array Chache memory Lcd 6 * 84 = 504 bytes */
-static uint8_t cacheMemLcd[CACHE_SIZE_MEM];
+// @var array Chache memory Lcd 6 * 84 = 504 bytes
+static char cacheMemLcd[CACHE_SIZE_MEM];
 
-/** @var array Chache memory char index */
+// @var array Chache memory char index
 int cacheMemIndex = 0;
 
 /**
- * @description Initialise pcd8544 controller
+ * @desc    Initialise pcd8544 controller
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void Pcd8544Init(void)
 {
-  // Actiavte pull-up register
-  // logical high on pin RST
+  // Actiavte pull-up register -> logical high on pin RST
   PORT |= (1 << RST);
   // Output: RST, SCK, DIN, CE, DC 
   DDR  |= (1 << RST) | 
@@ -167,12 +170,12 @@ void Pcd8544Init(void)
 }
 
 /**
- * @description Command send
+ * @desc    Command send
  *
- * @param uint8_t 
- * @return void
+ * @param   char 
+ * @return  void
  */
-void CommandSend(uint8_t data)
+void CommandSend(char data)
 {
   // chip enable - active low
   PORT &= ~(1 << CE);
@@ -187,12 +190,12 @@ void CommandSend(uint8_t data)
 }
 
 /**
- * @description Command send
+ * @desc    Data send
  *
- * @param uint8_t 
- * @return void
+ * @param   char 
+ * @return  void
  */
-void DataSend(uint8_t data)
+void DataSend(char data)
 {
   // chip enable - active low
   PORT &= ~(1 << CE);
@@ -206,11 +209,11 @@ void DataSend(uint8_t data)
   PORT |= (1 << CE);
 }
 
-/***
- * @description Reset impulse
+/**
+ * @desc    Reset impulse
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void ResetImpulse(void)
 {
@@ -223,22 +226,24 @@ void ResetImpulse(void)
   // Reset High
   PORT |=  (1 << RST);
 }
+
 /**
- * Clear screen
+ * @desc    Clear screen
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void ClearScreen(void)
 {
   // null cache memory lcd
   memset(cacheMemLcd, 0x00, CACHE_SIZE_MEM);
 }
+
 /**
- * @description Update screen
+ * @desc    Update screen
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void UpdateScreen(void)
 {
@@ -251,15 +256,16 @@ void UpdateScreen(void)
     DataSend(cacheMemLcd[i]);
   }  
 }
+
 /**
- * @description Draw character
+ * @desc    Draw character
  *
- * @param char
- * @return void
+ * @param   char
+ * @return  char
  */
 char DrawChar(char character)
 {
-  uint8_t i;
+  unsigned int i;
   // check if character is out of range
   if ((character < 0x20) &&
       (character > 0x7f)) { 
@@ -286,29 +292,31 @@ char DrawChar(char character)
   // return exit
   return 0;
 }
+
 /**
- * @description Draw string
+ * @desc    Draw string
  *
- * @param char *
- * @return void
+ * @param   char*
+ * @return  char
  */
 void DrawString(char *str)
 {
-  uint8_t i = 0;
+  unsigned int i = 0;
   // loop through 5 bytes
   while (str[i] != '\0') {
     //read characters and increment index
     DrawChar(str[i++]);
   }
 }
+
 /**
- * @description Set x, y pixel position
+ * @desc    Set text position
  *
- * @param uint8_t x - position / 0 <= rows <= 5 
- * @param uint8_t y - position / 0 <= cols <= 14 
- * @return void
+ * @param   char x - position / 0 <= rows <= 5 
+ * @param   char y - position / 0 <= cols <= 14 
+ * @return  void
  */
-char SetTextPosition(uint8_t x, uint8_t y)
+char SetTextPosition(char x, char y)
 {
   // check if x, y is in range
   if ((x >= MAX_NUM_ROWS) ||
@@ -316,8 +324,7 @@ char SetTextPosition(uint8_t x, uint8_t y)
     // out of range
     return 0;
   }
-  // normal instruction set
-  // horizontal adressing mode
+  // normal instruction set / horizontal adressing mode
   CommandSend(0x20);
   // set x-position
   CommandSend((0x40 | x));
@@ -328,14 +335,15 @@ char SetTextPosition(uint8_t x, uint8_t y)
   // success return
   return 1;
 }
+
 /**
- * @description Set x, y pixel position
+ * @desc    Set pixel position
  *
- * @param uint8_t x - position / 0 <= rows <= 47 
- * @param uint8_t y - position / 0 <= cols <= 83 
- * @return void
+ * @param   char x - position / 0 <= rows <= 47 
+ * @param   char y - position / 0 <= cols <= 83 
+ * @return  char
  */
-char SetPixelPosition(uint8_t x, uint8_t y)
+char SetPixelPosition(char x, char y)
 { 
   // check if x, y is in range
   if ((x >= (MAX_NUM_ROWS * 8)) ||
@@ -355,14 +363,15 @@ char SetPixelPosition(uint8_t x, uint8_t y)
   // success return
   return 1;
 }
+
 /**
- * @description Draw x, y pixel position
+ * @desc    Draw pixel on x, y position
  *
- * @param uint8_t x - position / 0 <= rows <= 47 
- * @param uint8_t y - position / 0 <= cols <= 83 
- * @return void
+ * @param   char x - position / 0 <= rows <= 47 
+ * @param   char y - position / 0 <= cols <= 83 
+ * @return  char
  */
-char DrawPixel(uint8_t x, uint8_t y)
+char DrawPixel(char x, char y)
 { 
   // set pixel position
   if (0 == SetPixelPosition(x, y)) {
@@ -374,17 +383,18 @@ char DrawPixel(uint8_t x, uint8_t y)
   // success return
   return 1;
 }
+
 /**
- * @description Draw line by Bresenham algoritm
- * @surce       https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+ * @desc    Draw line by Bresenham algoritm
+ * @surce   https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
  *  
- * @param uint8_t x - position / 0 <= cols <= 83 
- * @param uint8_t x - position / 0 <= cols <= 83 
- * @param uint8_t y - position / 0 <= rows <= 47 
- * @param uint8_t y - position / 0 <= rows <= 47
- * @return void
+ * @param   char x - position / 0 <= cols <= 83 
+ * @param   char x - position / 0 <= cols <= 83 
+ * @param   char y - position / 0 <= rows <= 47 
+ * @param   char y - position / 0 <= rows <= 47
+ * @return  char
  */
-char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
+char DrawLine(char x1, char x2, char y1, char y2)
 {
   // determinant
   int16_t D;
