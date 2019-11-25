@@ -1,13 +1,31 @@
 /*** 
- * LCD driver for controller pcd8544 / Nokia 5110, 3110 /
- *
- * Copyright (C) 2016 Marian Hrinko.
+ * LCD driver PCD8544 / Nokia 5110, 3110 /
+ * 
+ * Copyright (C) 2019 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
+ * @author      Marian Hrinko
+ * @update      25.11.2019
+ * @file        pcd8544.h
+ * @tested      AVR Atmega16 / AVR Atmega8
+ * @descript    Library designed for LCD with PCD8544 driver
+ * @usage       LCD Resolution 48x84
+ *              Ccommunication thorught 5 control wires (SCK, RST, DIN, CE, CS)
+ * 
  */
+
 #ifndef __PCD8544_H__
 #define __PCD8544_H__
 
+  #define _FCPU 16000000
+
+  // define clock
+  #if defined(__AVR_ATmega8__)
+    #define _FCPU 8000000
+  #elif defined(__AVR_ATmega16__)
+    #define _FCPU 16000000
+  #endif
+  // define port
   #ifndef PORT
     #define PORT PORTB
   #endif
@@ -34,107 +52,109 @@
   #define MAX_NUM_COLS 84
   #define CACHE_SIZE_MEM (MAX_NUM_ROWS * MAX_NUM_COLS)
 
-  /** @const Characters */
-  extern const uint8_t CHARACTERS[][5];
+  // @const Characters
+  extern const char CHARACTERS[][5];
 
-  /***
-   * Initialise pcd8544 controller
+  /**
+   * @desc    Initialise pcd8544 controller
    *
-   * @param void
-   * @return void
+   * @param   void
+   * @return  void
    */
   void Pcd8544Init(void);
 
-  /***
-   * Command send
+  /**
+   * @desc    Command send
    *
-   * @param uint8_t
-   * @return void
+   * @param   char
+   * @return  void
    */
-  void CommandSend(uint8_t);
+  void CommandSend(char);
 
-  /***
-   * Data send
+  /**
+   * @desc    Data send
    *
-   * @param uint8_t
-   * @return void
+   * @param   char
+   * @return  void
    */
-  void DataSend(uint8_t);
+  void DataSend(char);
 
-  /***
-   * Reset Impulse
+  /**
+   * @desc    Reset Impulse
    *
-   * @param void
-   * @return void
+   * @param   void
+   * @return  void
    */
   void ResetImpulse(void);
 
-  /***
-   * Clear screen
+  /**
+   * @desc    Clear screen
    *
-   * @param void
-   * @return void
+   * @param   void
+   * @return  void
    */
   void ClearScreen(void);
 
-  /***
-   * Update screen
+  /**
+   * @desc    Update screen
    *
-   * @param void
-   * @return void
+   * @param   void
+   * @return  void
    */
   void UpdateScreen(void);
 
-  /***
-   * Draw character
+  /**
+   * @desc    Draw character
    *
-   * @param char
-   * @return void
+   * @param   unsigned int
+   * @return  char
    */
   char DrawChar(char);
 
-  /***
-   * Draw string
+  /**
+   * @desc    Draw string
    *
-   * @param char*
-   * @return void
+   * @param   char*
+   * @return  char
    */
   void DrawString(char*);
 
-  /***
-   * Set text position x, y
+  /**
+   * @desc    Set text position x, y
    *
-   * @param uint8_t x - position 0 <= x <=  5
-   * @param uint8_t y - position 0 <= y <= 14
-   * @return void
+   * @param   char x - position 0 <= x <=  5
+   * @param   char y - position 0 <= y <= 14
+   * @return  char
    */
-  char SetTextPosition(uint8_t, uint8_t);
+  char SetTextPosition(char, char);
 
-  /***
-   * Set pixel position x, y
+  /**
+   * @desc    Set pixel position x, y
    *
-   * @param uint8_t x - position 0 <= x <= 47
-   * @param uint8_t y - position 0 <= y <= 83
-   * @return void
+   * @param   char x - position 0 <= x <= 47
+   * @param   char y - position 0 <= y <= 83
+   * @return  char
    */
-  char SetPixelPosition(uint8_t, uint8_t);
+  char SetPixelPosition(char, char);
 
-  /***
-   * Draw pixel on position x, y
+  /**
+   * @desc    Draw pixel on position x, y
    *
-   * @param uint8_t x - position
-   * @param uint8_t y - position
-   * @return void
+   * @param   char x - position
+   * @param   char y - position
+   * @return  void
    */
-  char DrawPixel(uint8_t, uint8_t);
+  char DrawPixel(char, char);
 
-  /***
-   * Draw line
+  /**
+   * @desc    Draw line
    *
-   * @param uint8_t x - position
-   * @param uint8_t y - position
-   * @return void
+   * @param   char x - start x position
+   * @param   char y - end x position
+   * @param   char x - start y position
+   * @param   char y - end y position
+   * @return  CHAR
    */
-  char DrawLine(uint8_t, uint8_t, uint8_t, uint8_t);
+  char DrawLine(char, char, char, char);
 
 #endif
