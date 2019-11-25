@@ -17,8 +17,6 @@
 #ifndef __PCD8544_H__
 #define __PCD8544_H__
 
-  #define _FCPU 16000000
-
   // define clock
   #if defined(__AVR_ATmega8__)
     #define _FCPU 8000000
