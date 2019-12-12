@@ -4,7 +4,7 @@
 Detailed information are described in [Datasheet PCD8544](https://www.sparkfun.com/datasheets/LCD/Monochrome/Nokia5110.pdf).
 
 ## Library
-C library for driving Nokia 5110 LCD display with PCD8544 Driver through SPI's Atmega16.
+C library for driving Nokia 5110 LCD display with PCD8544 Driver through SPI's Atmega16 / Atmega8.
 
 ### Usage
 Prior defined for MCU Atmega16 / Atmega8. Need to be carefull with SPI ports definition.
