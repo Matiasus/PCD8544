@@ -23,4 +23,4 @@ Library was tested and proved on a **_Nokia 5110 LCD display_** with **_Atmega16
 <img src="img/pcd8544.jpg" />
 
 ## Acknowledgement
-https://github.com/mvadai/muonhunter/blob/master/avr/
+- [mvadai](https://github.com/mvadai/muonhunter/blob/master/avr/)
