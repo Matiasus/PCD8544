@@ -1,4 +1,4 @@
-# PCD8544 48 × 84 pixels matrix LCD driver
+# C Library for LCD PCD8544 driver display
 
 ## PCD8544 Description
 Detailed information are described in [Datasheet PCD8544](https://www.sparkfun.com/datasheets/LCD/Monochrome/Nokia5110.pdf).
