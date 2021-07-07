@@ -43,12 +43,100 @@
     #define DC              PB1  // INT2
   #endif
 
+  // Success / Error
+  // -----------------------------------
   #define PCD8544_SUCCESS   0
   #define PCD8544_ERROR     1
 
+  // Command definition
+  // -----------------------------------
+  #define NOP               0x00
+
+  // Function set
+  // -----------------------------------
+  // D7 D6 D5 D4 D3 D2 D1 D0  
+  // 0   0  1  0  0 PD  V  H
+  //
+  // PD = {0, 1} => {Chip is active, Power Down}
+  //  V = {0, 1} => {Horizontal addressing, Vertical adressing}
+  //  H = {0, 1} => {Basic instruction set, Extended instruction set}
+  #define FUNCTION_SET      0x20
+  // PD
+  #define MODE_ACTIVE       0x00
+  #define MODE_P_DOWN       0x04
+  // V
+  #define HORIZ_ADDR_MODE   0x00
+  #define VERTI_ADDR_MODE   0x02
+  // H
+  #define EXTEN_INS_SET     0x01
+  #define BASIC_INS_SET     0x00
+
+  // Display control
+  // -----------------------------------
+  // D7 D6 D5 D4 D3 D2 D1 D0  
+  // 0   0  0  0  1  D  0  E
+  //
+  // D, E = {0, 0} => Display blank
+  // D, E = {0, 1} => Normal mode
+  // D, E = {1, 0} => All display segments on
+  // D, E = {1, 1} => Inverse video mode
+  #define DISPLAY_CONTROL   0x08
+  // D, E
+  #define DISPLAY_BLANK     0x00
+  #define ALL_SEGMS_ON      0x01
+  #define NORMAL_MODE       0x04
+  #define INVERSE_MODE      0x05
+
+  // Temperature coefficient
+  // -----------------------------------
+  // D7 D6 D5 D4 D3 D2  D1  D0  
+  // 0   0  0  0  0  1 TC1 TC0
+  //
+  // TC1, TC0 = {0, 0} => VLCD temperature coefficient 0
+  // TC1, TC0 = {0, 1} => VLCD temperature coefficient 1
+  // TC1, TC0 = {1, 0} => VLCD temperature coefficient 2
+  // TC1, TC0 = {1, 1} => VLCD temperature coefficient 3
+  #define TEMP_CONTROL      0x04
+  // TC1, TC0
+  #define TEMP_COEF_1       0x00
+  #define TEMP_COEF_2       0x01
+  #define TEMP_COEF_3       0x02
+  #define TEMP_COEF_4       0x03
+
+  // Bias control
+  // -----------------------------------
+  // D7 D6 D5 D4 D3  D2  D1  D0  
+  // 0   0  0  0  0 BS2 BS1 BS0
+  //
+  #define BIAS_CONTROL      0x10
+  // BS2 BS1 BS0
+  #define BIAS_1_100        0x00
+  #define BIAS_1_80         0x01
+  #define BIAS_1_65         0x02
+  #define BIAS_1_48         0x03
+  #define BIAS_1_34         0x04
+  #define BIAS_1_24         0x05
+  #define BIAS_1_16         0x06
+  #define BIAS_1_8          0x07
+
+  // AREA definition
+  // -----------------------------------
   #define MAX_NUM_ROWS      6
   #define MAX_NUM_COLS      84
-  #define CACHE_SIZE_MEM (MAX_NUM_ROWS * MAX_NUM_COLS)
+  #define CACHE_SIZE_MEM    (MAX_NUM_ROWS * MAX_NUM_COLS)
+
+  // FUNCTION macros
+  // -----------------------------------
+  // clear bit
+  #define CLR_BIT(port, bit)                ( ((port) &= ~(1 << (bit))) )
+  // set bit
+  #define SET_BIT(port, bit)                ( ((port) |= (1 << (bit))) )
+  // bit is clear?
+  #define IS_BIT_CLR(port, bit)             ( IS_BIT_SET(port, bit) ? 0 : 1 )
+  // bit is set?
+  #define IS_BIT_SET(port, bit)             ( ((port) & (1 << (bit))) ? 1 : 0 )
+  // wait until bit is set
+  #define WAIT_UNTIL_BIT_IS_SET(port, bit)  { while (IS_BIT_CLR(port, bit)); }
 
   /**
    * @desc    Initialise pcd8544 controller

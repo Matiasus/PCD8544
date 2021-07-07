@@ -7,6 +7,7 @@
  *
  * @author      Marian Hrinko
  * @datum       13.10.2020
+ * @update      07.07.2021
  * @file        pcd8544.c
  * @version     2.0
  * @tested      AVR Atmega16
@@ -35,7 +36,7 @@ int cacheMemIndex = 0;
  *
  * @return  void
  */
-void PCD8544_Init(void)
+void PCD8544_Init (void)
 {
   // Actiavte pull-up register -> logical high on pin RST
   PORT |= (1 << RST);
@@ -54,22 +55,21 @@ void PCD8544_Init(void)
           (1 << MSTR) |
           (1 << SPR0);
   // extended instruction set
-  PCD8544_CommandSend(0x21);
-  // temperature set - temperature coefficient of IC
-  PCD8544_CommandSend(0x06);
+  PCD8544_CommandSend (FUNCTION_SET | EXTEN_INS_SET);
+  // temperature set - temperature coefficient of IC / correction 3
+  PCD8544_CommandSend (TEMP_CONTROL | TEMP_COEF_3);
   // bias 1:48 - optimum bias value
-  PCD8544_CommandSend(0x13);
+  PCD8544_CommandSend (BIAS_CONTROL | BIAS_1_48);
   // for mux 1:48 optimum operation voltage is Ulcd = 6,06.Uth
-  // Ulcd = 3,06 + (Ucp6 to Ucp0).0,06
+  // Ulcd = 3,06 + (Ucp6 to Ucp0) x 0,06
   // 6 < Ulcd < 8,05
   // command for operation voltage = 0x1 Ucp6 Ucp5 Ucp4 Ucp3 Ucp2 Ucp1 Ucp0
   // Ulcd = 0x11000010 = 7,02 V
-  PCD8544_CommandSend(0xC2);
-  // normal instruction set
-  // horizontal adressing mode
-  PCD8544_CommandSend(0x20);
+  PCD8544_CommandSend (0xC2);
+  // normal instruction set / horizontal adressing mode
+  PCD8544_CommandSend (FUNCTION_SET | BASIC_INS_SET | HORIZ_ADDR_MODE);
   // normal mode
-  PCD8544_CommandSend(0x0C);
+  PCD8544_CommandSend (DISPLAY_CONTROL | NORMAL_MODE);
 }
 
 /**
@@ -79,18 +79,22 @@ void PCD8544_Init(void)
  * 
  * @return  void
  */
-void PCD8544_CommandSend(char data)
+void PCD8544_CommandSend (char data)
 {
   // chip enable - active low
-  PORT &= ~(1 << CE);
+  // PORT &= ~(1 << CE);
+  CLR_BIT (PORT, CE);
   // command (active low)
-  PORT &= ~(1 << DC);
+  // PORT &= ~(1 << DC);
+  CLR_BIT (PORT, DC);
   // transmitting data
   SPDR = data;
   // wait till data transmit
-  while (!(SPSR & (1 << SPIF)));
+  // while (!(SPSR & (1 << SPIF)));
+  WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
-  PORT |= (1 << CE);
+  // PORT |= (1 << CE);
+  SET_BIT (PORT, CE);
 }
 
 /**
@@ -100,18 +104,22 @@ void PCD8544_CommandSend(char data)
  *
  * @return  void
  */
-void PCD8544_DataSend(char data)
+void PCD8544_DataSend (char data)
 {
   // chip enable - active low
-  PORT &= ~(1 << CE);
+  // PORT &= ~(1 << CE);
+  CLR_BIT (PORT, CE);
   // data (active high)
-  PORT |= 1 << DC;
+  // PORT |= 1 << DC;
+  SET_BIT (PORT, DC);
   // transmitting data
   SPDR = data;
   // wait till data transmit
-  while (!(SPSR & (1 << SPIF)));
+  // while (!(SPSR & (1 << SPIF)));
+  WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
-  PORT |= (1 << CE);
+  // PORT |= (1 << CE);
+  SET_BIT (PORT, CE);
 }
 
 /**
@@ -121,16 +129,18 @@ void PCD8544_DataSend(char data)
  *
  * @return  void
  */
-void PCD8544_ResetImpulse(void)
+void PCD8544_ResetImpulse (void)
 {
   // delay 1ms
   _delay_ms(1);
   // Reset Low 
-  PORT &= ~(1 << RST);
+  // PORT &= ~(1 << RST);
+  CLR_BIT (PORT, RST);
   // delay 1ms
   _delay_ms(1);
   // Reset High
-  PORT |=  (1 << RST);
+  // PORT |=  (1 << RST);
+  SET_BIT (PORT, RST);
 }
 
 /**
@@ -140,10 +150,10 @@ void PCD8544_ResetImpulse(void)
  *
  * @return  void
  */
-void PCD8544_ClearScreen(void)
+void PCD8544_ClearScreen (void)
 {
   // null cache memory lcd
-  memset(cacheMemLcd, 0x00, CACHE_SIZE_MEM);
+  memset (cacheMemLcd, 0x00, CACHE_SIZE_MEM);
 }
 
 /**
@@ -153,7 +163,7 @@ void PCD8544_ClearScreen(void)
  *
  * @return  void
  */
-void PCD8544_UpdateScreen(void)
+void PCD8544_UpdateScreen (void)
 {
   int i;
   // set position x, y
@@ -172,7 +182,7 @@ void PCD8544_UpdateScreen(void)
  *
  * @return  char
  */
-char PCD8544_DrawChar(char character)
+char PCD8544_DrawChar (char character)
 {
   unsigned int i;
   // check if character is out of range
@@ -209,12 +219,12 @@ char PCD8544_DrawChar(char character)
  *
  * @return  void
  */
-void PCD8544_DrawString(char *str)
+void PCD8544_DrawString (char *str)
 {
   unsigned int i = 0;
   // loop through 5 bytes
   while (str[i] != '\0') {
-    //read characters and increment index
+    // read characters and increment index
     PCD8544_DrawChar(str[i++]);
   }
 }
@@ -227,7 +237,7 @@ void PCD8544_DrawString(char *str)
  *
  * @return  char
  */
-char PCD8544_SetTextPosition(char x, char y)
+char PCD8544_SetTextPosition (char x, char y)
 {
   // check if x, y is in range
   if ((x >= MAX_NUM_ROWS) ||
@@ -255,7 +265,7 @@ char PCD8544_SetTextPosition(char x, char y)
  * 
  * @return  char
  */
-char PCD8544_SetPixelPosition(char x, char y)
+char PCD8544_SetPixelPosition (char x, char y)
 { 
   // check if x, y is in range
   if ((x >= (MAX_NUM_ROWS * 8)) ||
@@ -284,12 +294,12 @@ char PCD8544_SetPixelPosition(char x, char y)
  *
  * @return  char
  */
-char PCD8544_DrawPixel(char x, char y)
+char PCD8544_DrawPixel (char x, char y)
 { 
   // set pixel position
-  if (PCD8544_SUCCESS == PCD8544_SetPixelPosition(x, y)) {
+  if (PCD8544_SUCCESS == PCD8544_SetPixelPosition (x, y)) {
     // out of range 
-    return 0;
+    return PCD8544_ERROR;
   }
   // send 1 as data
   cacheMemLcd[cacheMemIndex] |= 1 << (x % 8);
@@ -308,7 +318,7 @@ char PCD8544_DrawPixel(char x, char y)
  *
  * @return  char
  */
-char PCD8544_DrawLine(char x1, char x2, char y1, char y2)
+char PCD8544_DrawLine (char x1, char x2, char y1, char y2)
 {
   // determinant
   int16_t D;
